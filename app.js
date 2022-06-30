@@ -1,18 +1,38 @@
 const express = require('express');
-const path = require('path');
 const app = express();
+const logger = require('./05-logger');
+const authorize = require('./05-authorize');
 
-app.use(express.static('./public'));
+// req => middleware => res
+// app.get('/',logger, (req, res) => {
+//     res.send('Hello, world!');
+// })
+
+// app.get('/about',logger, (req, res) => {
+//     res.send('About')
+// })
+
+// sexond way
+
+// app.use(logger,authorize);
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, './navbar-app/index.html'));
+    res.send('Hello, world!');
 })
 
-app.all('*', (req, res) => {
-    res.status(404).send('404 Not Found');
+app.get('/about', (req, res) => {
+    res.send('About')
 })
 
-app.listen(5000,(req,res)=>{
-    console.log('Server listening on port');
-    
+app.get('/api/items',[logger,authorize],(req, res) => {
+    res.send('Items')
+})
+
+app.get('/api/item', (req, res) => {
+    res.send('One Item')
+    console.log(req.user);
+})
+
+app.listen(5000,()=>{
+    console.log('Server is listening on port');
 })
