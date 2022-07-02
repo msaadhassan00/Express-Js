@@ -1,38 +1,36 @@
 const express = require('express');
 const app = express();
-const logger = require('./05-logger');
-const authorize = require('./05-authorize');
+let { people } = require('./data');
 
-// req => middleware => res
-// app.get('/',logger, (req, res) => {
-//     res.send('Hello, world!');
-// })
+app.use(express.static('./methods-public'))
 
-// app.get('/about',logger, (req, res) => {
-//     res.send('About')
-// })
+// middleware
+app.use(express.urlencoded({ extended: false }))
 
-// sexond way
+//parse data
+app.use(express.json());
 
-// app.use(logger,authorize);
-
-app.get('/', (req, res) => {
-    res.send('Hello, world!');
+app.get('/api/users',(req, res)=> {
+    res.status(200).json({success: true,data:people});
 })
 
-app.get('/about', (req, res) => {
-    res.send('About')
+app.post('/api/users',(req, res)=>{
+    const {name} = req.body;
+    if(!name){
+        return res.status(401).json({success: false,msg:'Provide Name'});
+    }
+    res.status(200).json({success: true,person:name});
 })
 
-app.get('/api/items',[logger,authorize],(req, res) => {
-    res.send('Items')
-})
-
-app.get('/api/item', (req, res) => {
-    res.send('One Item')
-    console.log(req.user);
+app.post('/login',(req, res)=> {
+    const {name} = req.body;
+    if(name){
+        
+        return res.status(200).send(`Welcome ${name}!`);
+    }
+    res.status(401).send(`You must be logged in`);
 })
 
 app.listen(5000,()=>{
-    console.log('Server is listening on port');
+    console.log('Server listening')
 })
